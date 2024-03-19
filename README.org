@@ -25,7 +25,7 @@ Commands:
   - blorg serve
 #+end_src
 ** as a library
-see [[https://github.com/niklasfasching/go-org/blob/master/main.go][main.go]] and hugo [[https://github.com/gohugoio/hugo/blob/master/markup/org/convert.go][org/convert.go]]
+see [[https://github.com/facundoolano/go-org/blob/master/main.go][main.go]] and hugo [[https://github.com/gohugoio/hugo/blob/master/markup/org/convert.go][org/convert.go]]
 * development
 1. =make setup=
 2. change things
