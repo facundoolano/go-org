@@ -1,7 +1,6 @@
 package org
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 	"unicode"
@@ -97,13 +96,6 @@ func trimFastTags(tags []string) []string {
 		}
 	}
 	return trimmedTags
-}
-
-func (h Headline) ID() string {
-	if customID, ok := h.Properties.Get("CUSTOM_ID"); ok {
-		return customID
-	}
-	return fmt.Sprintf("headline-%d", h.Index)
 }
 
 func (h Headline) IsExcluded(d *Document) bool {

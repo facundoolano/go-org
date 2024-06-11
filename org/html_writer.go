@@ -268,6 +268,21 @@ func (w *HTMLWriter) WriteOutline(d *Document, maxLvl int) {
 	}
 }
 
+var snakeCaseRegexp = regexp.MustCompile(`(^[A-Za-z])|_([A-Za-z])`)
+var whitespaceRegexp = regexp.MustCompile(`\s+`)
+var nonWordCharRegexp = regexp.MustCompile(`[^\w-]`)
+
+func (w *HTMLWriter) HeadlineId(h *Headline) string {
+	// FIXME doing a naive slugification of the title text to generate the html tag id.
+	// this won't work in general because titles can be repeated --we'd have to track the slugs and disambiguate them
+	// keeping this as it's an easy change and it's more useful than the default even if buggy
+	title := w.WriteNodesAsString(h.Title...)
+	title = strings.ToLower(title)
+	title = whitespaceRegexp.ReplaceAllString(title, "-")
+	title = nonWordCharRegexp.ReplaceAllString(title, "")
+	return strings.Trim(title, "-")
+}
+
 func (w *HTMLWriter) writeSection(section *Section, maxLvl int) {
 	if (maxLvl != 0 && section.Headline.Lvl > maxLvl) || section.Headline.IsExcluded(w.document) {
 		return
@@ -276,7 +291,7 @@ func (w *HTMLWriter) writeSection(section *Section, maxLvl int) {
 	w.WriteString("<li>")
 	h := section.Headline
 	title := cleanHeadlineTitleForHTMLAnchorRegexp.ReplaceAllString(w.WriteNodesAsString(h.Title...), "")
-	w.WriteString(fmt.Sprintf("<a href=\"#%s\">%s</a>\n", h.ID(), title))
+	w.WriteString(fmt.Sprintf("<a href=\"#%s\">%s</a>\n", w.HeadlineId(h), title))
 	hasChildren := false
 	for _, section := range section.Children {
 		hasChildren = hasChildren || maxLvl == 0 || section.Headline.Lvl <= maxLvl
@@ -298,7 +313,7 @@ func (w *HTMLWriter) WriteHeadline(h Headline) {
 
 	level := (h.Lvl - 1) + w.TopLevelHLevel
 
-	w.WriteString(fmt.Sprintf(`<h%d id="%s">`, level, h.ID()) + "\n")
+	w.WriteString(fmt.Sprintf(`<h%d id="%s">`, level, w.HeadlineId(&h)) + "\n")
 	if w.document.GetOption("todo") != "nil" && h.Status != "" {
 		w.WriteString(fmt.Sprintf(`<span class="todo status-%s">%s</span>`, strings.ToLower(h.Status), h.Status) + "\n")
 	}
